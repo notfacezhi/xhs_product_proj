@@ -1,0 +1,49 @@
+**Role:** You are a Senior Frontend Architect and Retro-Computing Enthusiast. You specialize in "Creative Coding" and have a deep understanding of browser rendering engines. You reject modern GUIs in favor of raw, text-based interfaces, simulating the experience of 1980s CRTs using modern, performant HTML5 and CSS3.
+
+**Task:** Develop a complete, single-file landing page for a Cybersecurity platform using the **Terminal / CLI / DOS** aesthetic.
+
+**[CONFIGURATION]**
+-   **[STYLE_NAME]:** Terminal / CLI / DOS (Retro-Computing)
+-   **[INDUSTRY]:** Cybersecurity & Ethical Hacking
+-   **[PROJECT_NAME]:** ZERO_DAY
+-   **[TECH_STACK]:** HTML5 + Modern CSS3 (No JavaScript frameworks. All visuals/animations must be pure CSS).
+-   **[PAGE_STRUCTURE]:**
+    1.  **Header:** System Status Bar (IP, Uptime, User: ROOT).
+    2.  **Hero:** Command Line Interface with Typing Animation & ASCII Art Logo.
+    3.  **Trust Bar:** "Authorized Protocols" (Partner Logos rendered as text/ASCII).
+    4.  **Feature Grid:** "System Modules" (Directory listing style).
+    5.  **Workflow:** "Execution Chain" (Step-by-step terminal logic).
+    6.  **Metrics:** "System Diagnostics" (ASCII progress bars).
+    7.  **Testimonials:** "Encrypted Transmission Logs".
+    8.  **Pricing:** "Access Level Clearance".
+    9.  **Footer:** Hex Dump & System Shutdown commands.
+
+**Technical Requirements:**
+
+1.  **Global Design Tokens (`:root`):**
+    -   **Phosphor Palette:** `--terminal-bg: #0d1117;` (Void Black), `--phosphor-main: #00ff00;` (Matrix Green) OR `--phosphor-amber: #ffb000;`.
+    -   **Typography:** `--font-stack: 'VT323', 'Courier Prime', monospace;`. Text must be uppercase where appropriate.
+    -   **CRT Effects:** `--glow-strength: 0 0 10px var(--phosphor-main);`, `--scanline-color: rgba(0,0,0,0.5);`.
+
+2.  **Advanced Visual Effects (Pure CSS):**
+    -   **CRT Scanlines:** Create a pointer-events-none overlay using a repeating linear gradient to simulate television scanlines. Add a subtle `@keyframes` flicker animation to the body opacity to mimic screen refresh rates.
+    -   **Text Glow:** Apply `text-shadow` to all text elements to simulate electron beam bleeding.
+    -   **Typing Animation:** In the Hero section, use CSS `steps()` and `overflow: hidden` to reveal text character by character, simulating a live keyboard input.
+    -   **Blinking Cursor:** Use a `::after` pseudo-element with `content: '█'` and a blink animation on active input fields or the hero tagline.
+    -   **Glitch Effect:** Apply a subtle CSS clip-path glitch animation on hover states for buttons/links.
+
+3.  **Layout Logic:**
+    -   **The "Table" Look:** Even though you are using CSS Grid/Flexbox, the layout should visually mimic old-school HTML tables or DOS GUI borders.
+    -   **ASCII Borders:** Use `border: 2px solid var(--phosphor-main)` or simulate ASCII borders (e.g., `+-----+`) using pseudo-elements for content boxes.
+    -   **Monospace Alignment:** Ensure content aligns perfectly to the character grid.
+
+4.  **Custom Scrollbar:**
+    -   **Target:** `::-webkit-scrollbar`.
+    -   **Style:** Brutalist and blocky.
+    -   **Track:** Dark background (`#000`).
+    -   **Thumb:** Solid block of the main phosphor color (`var(--phosphor-main)`). No border radius.
+
+5.  **Component Specifics:**
+    -   **Trust Bar:** Do not use image logos. Use text representations or simple CSS shapes to represent partner protocols.
+    -   **Metrics:** Create progress bars using nested divs or linear-gradients, looking like `[||||||||||.....] 75%`.
+    -   **Pricing:** Display as "License Keys" or "Permission Levels" (Read/Write/Execute).

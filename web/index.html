@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>REDBOOK_MONITOR // SENTIMENT_ANALYSIS_SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+<div class="crt-vignette"></div>
+
+<header class="site-header">
+    <div class="container">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="brand">
+                    <span class="material-symbols-outlined animate-pulse" style="font-size: 1rem;">monitoring</span>
+                    <span class="brand-text text-glow">REDBOOK_MONITOR</span>
+                </div>
+                <span class="separator">//</span>
+                <span class="status" id="systemStatus">SYS_STATUS: ONLINE</span>
+            </div>
+            <div class="header-right">
+                <div class="header-stats">
+                    <span id="totalNotes">NOTES: 0</span>
+                    <span id="totalComments">COMMENTS: 0</span>
+                    <span id="crawlTime">TIME: --:--:--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="scanline">
+        <div class="scanline-bar"></div>
+    </div>
+</header>
+
+<main class="container main-wrapper">
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="retro-border search-container box-glow">
+            <div class="search-header">
+                <span class="material-symbols-outlined" style="font-size: 1rem;">search</span>
+                <span>KEYWORD_SEARCH_MODULE</span>
+            </div>
+            <div class="search-body">
+                <div class="custom-select-wrapper">
+                    <input type="text" id="keywordInput" class="input-field keyword-input-custom" 
+                           placeholder="SELECT_OR_ENTER_KEYWORD..." autocomplete="off" />
+                    <div class="custom-dropdown" id="keywordDropdown"></div>
+                </div>
+                <button id="searchBtn" class="btn-primary">
+                    <span class="material-symbols-outlined" style="font-size: 1.125rem;">visibility</span>
+                    [ VIEW_CRAWL_STATUS ]
+                </button>
+            </div>
+            <div class="search-stats">
+                <span id="currentKeyword">CURRENT_KEYWORD: NONE</span>
+                <span id="noteIndex">NOTE_INDEX: 0/0</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <section class="monitor-grid">
+        <!-- Left Panel: Notes Display -->
+        <div class="panel-left">
+            <div class="retro-border panel-card box-glow">
+                <div class="panel-header">
+                    <h3 class="panel-title text-glow">NOTE_DISPLAY_TERMINAL</h3>
+                    <span class="panel-status animate-pulse">● ACTIVE</span>
+                </div>
+                <div class="notes-viewport" id="notesViewport">
+                    <div class="note-card" id="noteCard">
+                        <div class="note-loading">
+                            <div class="terminal-line">C:\REDBOOK\MONITOR\&gt; WAITING_FOR_DATA...</div>
+                            <p class="loading-text text-glow">[ NO DATA LOADED ]</p>
+                            <p class="loading-hint">ENTER KEYWORD AND EXECUTE CRAWL TO BEGIN</p>
+                        </div>
+                    </div>
+                    <div class="note-nav">
+                        <button id="prevNote" class="nav-btn" disabled>
+                            <span class="material-symbols-outlined">arrow_upward</span>
+                            [ PREV ]
+                        </button>
+                        <button id="nextNote" class="nav-btn" disabled>
+                            <span class="material-symbols-outlined">arrow_downward</span>
+                            [ NEXT ]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Comments Display -->
+        <div class="panel-right">
+            <div class="retro-border panel-card box-glow">
+                <div class="panel-header">
+                    <h3 class="panel-title text-glow">COMMENTS_TERMINAL</h3>
+                    <div class="panel-controls">
+                        <span class="panel-status" id="commentCount">COUNT: 0</span>
+                        <div class="page-size-selector">
+                            <label for="pageSizeSelect">PAGE_SIZE:</label>
+                            <select id="pageSizeSelect" class="page-size-select">
+                                <option value="10">10</option>
+                                <option value="20" selected>20</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="comments-container" id="commentsContainer">
+                    <div class="comments-loading">
+                        <div class="terminal-line">C:\REDBOOK\COMMENTS\&gt; AWAITING_NOTE_SELECTION...</div>
+                        <p class="loading-text">[ NO COMMENTS LOADED ]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Status Marquee -->
+    <section class="marquee-section" id="statusMarquee" style="display: none;">
+        <div class="marquee-container">
+            <span class="marquee-label">CRAWL_STATUS:</span>
+            <div class="marquee-wrapper">
+                <div class="marquee-content" id="statusMarqueeContent">
+                    <span>SYSTEM READY</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

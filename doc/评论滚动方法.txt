@@ -1,0 +1,183 @@
+ // 完整的评论加载脚本 - 复制到控制台使用
+  (function() {
+      // 配置
+      const config = {
+          maxAttempts: 500,        // 最大尝试次数
+          scrollSpeed: 'normal',  // slow/normal/fast
+          checkInterval: 600,     // 检查间隔(毫秒)
+          maxCommentItems: 0      // 0表示不限制
+      };
+
+      // 状态
+      const state = {
+          lastCount: 0,
+          stagnantChecks: 0,
+          lastScrollTop: 0
+      };
+
+      // 统计
+      const stats = {
+          attempts: 0,
+          totalClicked: 0,
+          totalSkipped: 0
+      };
+
+      // ========== 核心函数 ==========
+
+      // 获取评论数量
+      function getCommentCount() {
+          const parentComments = document.querySelectorAll('.parent-comment');
+          return parentComments.length;
+      }
+
+      // 获取总评论数（来自页面状态）
+      function getTotalCommentCount() {
+          const total = document.querySelector('.total-comment-count');
+          if (total) return parseInt(total.textContent) || 0;
+          return getCommentCount();
+      }
+
+      // 检查是否到底部
+      function checkEndContainer() {
+          const endContainer = document.querySelector('.end-container, .no-more, [class*="end"], [class*="bottom"]');
+          if (!endContainer) return false;
+
+          const text = endContainer.textContent || '';
+          return text.toUpperCase().includes('THE END') ||
+                 text.toUpperCase().includes('NO MORE') ||
+                 text.includes('没有更多了') ||
+                 text.includes('到底了');
+      }
+
+      // 检查无评论区域
+      function checkNoCommentsArea() {
+          const noComments = document.querySelector('.no-comments, .empty-comments, [class*="no-comment"]');
+          return noComments && noComments.offsetParent !== null;
+      }
+
+      // 模拟人类滚动
+      function humanScroll(delta) {
+          // 创建并触发滚轮事件
+          const wheelEvent = new WheelEvent('wheel', {
+              deltaY: delta,
+              deltaMode: 0,
+              bubbles: true,
+              cancelable: true,
+              view: window
+          });
+
+          // 找到滚动目标
+          const targets = ['.note-scroller', '.interaction-container', '.detail-container', 'body'];
+          let target = document.documentElement;
+
+          for (const selector of targets) {
+              const el = document.querySelector(selector);
+              if (el && el.scrollHeight > el.clientHeight) {
+                  target = el;
+                  break;
+              }
+          }
+
+          target.dispatchEvent(wheelEvent);
+          console.log('触发滚动:', delta);
+
+          return delta;
+      }
+
+      // 智能滚动到评论
+      function scrollToCommentsArea() {
+          const commentsContainer = document.querySelector('.comments-container');
+          if (commentsContainer) {
+              commentsContainer.scrollIntoView({ behavior: 'smooth' });
+              console.log('滚动到评论区');
+          }
+      }
+
+      // 滚动到最后一个评论
+      function scrollToLastComment() {
+          const parentComments = document.querySelectorAll('.parent-comment');
+          if (parentComments.length > 0) {
+              const lastComment = parentComments[parentComments.length - 1];
+              lastComment.scrollIntoView({ behavior: 'smooth' });
+              console.log('滚动到最后一个评论');
+          }
+      }
+
+      // ========== 主要加载逻辑 ==========
+
+      function loadComments() {
+          stats.attempts++;
+          console.log(`尝试 #${stats.attempts}/${config.maxAttempts}`);
+
+          // 检查无评论区域
+          if (checkNoCommentsArea()) {
+              console.log('检测到无评论区域，跳过加载');
+              return true;
+          }
+
+          // 检查是否到底部
+          if (checkEndContainer()) {
+              const currentCount = getCommentCount();
+              console.log(`到底了！最终评论数: ${currentCount}`);
+              return true;
+          }
+
+          // 获取当前评论数
+          const currentCount = getCommentCount();
+          console.log(`当前评论数: ${currentCount}`);
+
+          // 更新状态
+          if (currentCount !== state.lastCount) {
+              console.log(`✓ 评论增加: ${state.lastCount} -> ${currentCount} (+${currentCount - state.lastCount})`);
+              state.lastCount = currentCount;
+              state.stagnantChecks = 0;
+          } else {
+              state.stagnantChecks++;
+              console.log(`评论停滞 ${state.stagnantChecks} 次`);
+
+              // 停滞检测
+              if (state.stagnantChecks >= 20) {
+                  console.log('停滞过多，执行大冲刺！');
+                  humanScroll(3000);
+                  state.stagnantChecks = 0;
+                  return false;
+              }
+          }
+
+          // 限制评论数量
+          if (config.maxCommentItems > 0 && currentCount >= config.maxCommentItems) {
+              console.log(`达到目标评论数: ${currentCount}/${config.maxCommentItems}`);
+              return true;
+          }
+
+          // 执行滚动
+          scrollToCommentsArea();
+          scrollToLastComment();
+
+          // 智能滚动
+          const baseScroll = 800 + Math.random() * 400;
+          humanScroll(baseScroll);
+
+          return false;
+      }
+
+      // ========== 启动加载 ==========
+
+      console.log('开始加载评论...');
+
+      const loadInterval = setInterval(() => {
+          if (stats.attempts >= config.maxAttempts) {
+              console.log('达到最大尝试次数，最后冲刺！');
+              humanScroll(3000);
+              clearInterval(loadInterval);
+              console.log('加载完成！');
+              return;
+          }
+
+          if (loadComments()) {
+              clearInterval(loadInterval);
+              console.log('评论加载完成！');
+          }
+      }, config.checkInterval);
+
+  })();

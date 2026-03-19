@@ -1,0 +1,5 @@
+# 看哪个进程占据着端口号 9222
+netstat -ano | findstr :9222
+
+# 杀死对应PID 进程
+taskkill /f /pid 25960
