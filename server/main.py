@@ -8,7 +8,7 @@ from typing import Optional, List
 from datetime import datetime
 import pymysql
 
-from spider.xhs_product_proj.db_config import DB_CONFIG
+from db_config import DB_CONFIG
 
 app = FastAPI(
     title="小红书监控服务",
