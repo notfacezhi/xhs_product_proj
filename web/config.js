@@ -12,8 +12,8 @@ const API_CONFIG = {
     
     // 生产环境: 通过nginx反向代理
     // nginx配置示例:
-    // location /api/ {
-    //     proxy_pass http://localhost:8000/api/;
+    // location /xhs_craw/ {
+    //     proxy_pass http://localhost:8000/xhs_craw/;
     // }
     production: {
         baseURL: '',  // 空字符串表示使用相对路径,通过nginx代理

@@ -41,7 +41,7 @@ def read_root():
     }
 
 
-@app.get("/api/stats")
+@app.get("/xhs_craw/stats")
 def get_stats():
     """
     获取爬取状态统计
@@ -96,7 +96,7 @@ def get_stats():
         conn.close()
 
 
-@app.get("/api/notes")
+@app.get("/xhs_craw/notes")
 def get_notes(
     keyword: Optional[str] = Query(None, description="关键词筛选"),
     status: Optional[str] = Query(None, description="状态筛选: crawling(爬取中), completed(已完成)"),
@@ -180,7 +180,7 @@ def get_notes(
         conn.close()
 
 
-@app.get("/api/notes/{note_id}")
+@app.get("/xhs_craw/notes/{note_id}")
 def get_note(note_id: str):
     """
     获取单个笔记详情
@@ -221,7 +221,7 @@ def get_note(note_id: str):
         conn.close()
 
 
-@app.get("/api/notes/{note_id}/comments")
+@app.get("/xhs_craw/notes/{note_id}/comments")
 def get_comments(
     note_id: str,
     page: int = Query(1, ge=1, description="页码"),
@@ -278,7 +278,7 @@ def get_comments(
         conn.close()
 
 
-@app.get("/api/keywords")
+@app.get("/xhs_craw/keywords")
 def get_keywords():
     """
     获取所有关键词列表

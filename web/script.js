@@ -48,7 +48,7 @@
 
     async function loadKeywords() {
         try {
-            const response = await apiRequest('/api/keywords');
+            const response = await apiRequest('/xhs_craw/keywords');
             if (response.data && response.data.length > 0) {
                 allKeywords = response.data;
                 console.log(`加载了 ${response.data.length} 个关键词`);
@@ -112,7 +112,7 @@
 
     async function loadStats() {
         try {
-            const stats = await apiRequest('/api/stats');
+            const stats = await apiRequest('/xhs_craw/stats');
             elements.totalNotes.textContent = `NOTES: ${stats.total || 0}`;
             elements.totalComments.textContent = `COMMENTS: ${stats.total_comments || 0}`;
         } catch (error) {
@@ -193,7 +193,7 @@
         showMarquee(`LOADING_STATUS: ${keyword}...`);
         
         try {
-            const response = await apiRequest(`/api/notes?keyword=${encodeURIComponent(keyword)}&page=1&page_size=100`);
+            const response = await apiRequest(`/xhs_craw/notes?keyword=${encodeURIComponent(keyword)}&page=1&page_size=100`);
             
             if (!response.data || response.data.length === 0) {
                 showMarquee(`NO_DATA: ${keyword}`);
@@ -310,7 +310,7 @@
 
     async function loadComments(noteId) {
         try {
-            const response = await apiRequest(`/api/notes/${noteId}/comments?page=${currentCommentPage}&page_size=${commentsPerPage}`);
+            const response = await apiRequest(`/xhs_craw/notes/${noteId}/comments?page=${currentCommentPage}&page_size=${commentsPerPage}`);
             
             if (!response.data || response.data.length === 0) {
                 elements.commentsContainer.innerHTML = `
