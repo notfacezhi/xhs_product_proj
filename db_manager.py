@@ -232,8 +232,8 @@ class DBManager:
     def get_high_value_users(self, keyword=None, limit=100):
         if keyword:
             sql = """
-            SELECT * FROM xhs_demand_research_records 
-            WHERE is_newcomer = 1 AND has_launch_intent = 1 
+            SELECT * FROM xhs_demand_research_records
+            WHERE is_newcomer = 1 AND has_launch_intent = 1
             AND demand_level IN ('潜在需求', '强需求')
             AND keyword = %s
             ORDER BY reply_time DESC
@@ -242,11 +242,68 @@ class DBManager:
             self.cursor.execute(sql, (keyword, limit))
         else:
             sql = """
-            SELECT * FROM xhs_demand_research_records 
-            WHERE is_newcomer = 1 AND has_launch_intent = 1 
+            SELECT * FROM xhs_demand_research_records
+            WHERE is_newcomer = 1 AND has_launch_intent = 1
             AND demand_level IN ('潜在需求', '强需求')
             ORDER BY reply_time DESC
             LIMIT %s
             """
             self.cursor.execute(sql, (limit,))
         return self.cursor.fetchall()
+
+    def update_note_content(self, note_content):
+        """
+        更新笔记详细内容（从 __INITIAL_STATE__ 获取的数据）
+        :param note_content: 笔记内容字典
+        """
+        import json
+
+        note_id = note_content.get('note_id')
+
+        # 先检查是否已爬取过笔记内容（检查关键字段是否有值）
+        check_sql = """
+        SELECT `desc`, type, images, video_url, tags, topic,
+               ip_location, collected_count, share_count, comment_count
+        FROM xhs_notes
+        WHERE note_id = %s
+        """
+        self.cursor.execute(check_sql, (note_id,))
+        row = self.cursor.fetchone()
+
+        # 如果任何一个字段有值，说明已爬取过
+        if row:
+            for value in row:
+                if value is not None and value != '' and value != 'normal':
+                    print(f"[{note_id}] 笔记内容已存在，跳过更新")
+                    return
+
+        # 都为空，执行更新
+        sql = """
+        UPDATE xhs_notes SET
+            `desc` = %s,
+            type = %s,
+            images = %s,
+            video_url = %s,
+            tags = %s,
+            topic = %s,
+            ip_location = %s,
+            collected_count = %s,
+            share_count = %s,
+            comment_count = %s
+        WHERE note_id = %s
+        """
+        self.cursor.execute(sql, (
+            note_content.get('desc'),
+            note_content.get('type', 'normal'),
+            json.dumps(note_content.get('image_list', []), ensure_ascii=False) if note_content.get('image_list') else None,
+            note_content.get('video_url'),
+            json.dumps(note_content.get('tags', []), ensure_ascii=False) if note_content.get('tags') else None,
+            note_content.get('topic'),
+            note_content.get('ip_location'),
+            note_content.get('collected_count'),
+            note_content.get('share_count'),
+            note_content.get('comment_count'),
+            note_id
+        ))
+        self.conn.commit()
+        print(f"[{note_id}] 笔记内容已更新到数据库")

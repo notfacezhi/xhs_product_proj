@@ -24,6 +24,11 @@
                 <span class="status" id="systemStatus">SYS_STATUS: ONLINE</span>
             </div>
             <div class="header-right">
+                <div class="radar-mini" id="radarMini">
+                    <div class="radar-circle"></div>
+                    <div class="radar-circle"></div>
+                    <div class="radar-scan"></div>
+                </div>
                 <div class="header-stats">
                     <span id="totalNotes">NOTES: 0</span>
                     <span id="totalComments">COMMENTS: 0</span>
@@ -41,26 +46,20 @@
 
     <!-- Search Section -->
     <section class="search-section">
-        <div class="retro-border search-container box-glow">
-            <div class="search-header">
-                <span class="material-symbols-outlined" style="font-size: 1rem;">search</span>
-                <span>KEYWORD_SEARCH_MODULE</span>
+        <div class="search-body">
+            <div class="custom-select-wrapper">
+                <input type="text" id="keywordInput" class="input-field keyword-input-custom" 
+                       placeholder="SELECT_OR_ENTER_KEYWORD..." autocomplete="off" />
+                <div class="custom-dropdown" id="keywordDropdown"></div>
             </div>
-            <div class="search-body">
-                <div class="custom-select-wrapper">
-                    <input type="text" id="keywordInput" class="input-field keyword-input-custom" 
-                           placeholder="SELECT_OR_ENTER_KEYWORD..." autocomplete="off" />
-                    <div class="custom-dropdown" id="keywordDropdown"></div>
-                </div>
-                <button id="searchBtn" class="btn-primary">
-                    <span class="material-symbols-outlined" style="font-size: 1.125rem;">visibility</span>
-                    [ VIEW_CRAWL_STATUS ]
-                </button>
-            </div>
-            <div class="search-stats">
-                <span id="currentKeyword">CURRENT_KEYWORD: NONE</span>
-                <span id="noteIndex">NOTE_INDEX: 0/0</span>
-            </div>
+            <button id="searchBtn" class="btn-primary">
+                <span class="material-symbols-outlined" style="font-size: 1.125rem;">visibility</span>
+                [ VIEW_CRAWL_STATUS ]
+            </button>
+        </div>
+        <div class="search-stats" style="display: none;">
+            <span id="currentKeyword">CURRENT_KEYWORD: NONE</span>
+            <span id="noteIndex">NOTE_INDEX: 0/0</span>
         </div>
     </section>
 

@@ -11,6 +11,8 @@ from playwright.sync_api import sync_playwright
 import os
 import subprocess
 import psutil
+import json
+import re
 
 from db_manager import DBManager
 profile_dir = Path(r"D:\application\mfw_tmp_test")  # ← 改成你的路径
@@ -113,6 +115,73 @@ def crawl_single_note_comments(page, note_id, note_url, set_pause=False):
 
     last_count = 0
     same_count_times = 0
+
+    # ------ 加载信息 爬取笔记信息------
+    # 等待页面加载完成
+    page.wait_for_timeout(2000)
+
+    # 获取 window.__INITIAL_STATE__
+    initial_state = page.evaluate("""
+        () => {
+            if (window.__INITIAL_STATE__ &&
+                window.__INITIAL_STATE__.note &&
+                window.__INITIAL_STATE__.note.noteDetailMap) {
+                const noteDetailMap = window.__INITIAL_STATE__.note.noteDetailMap;
+                return JSON.stringify(noteDetailMap);
+            }
+            return "";
+        }
+    """)
+    note_content = None
+    if initial_state:
+        note_detail_map = json.loads(initial_state)
+        if note_id in note_detail_map:
+            note_detail = note_detail_map[note_id]
+            note_data = note_detail.get('note', {})
+            note_content = {
+                'note_id': note_id,
+                'desc': note_data.get('desc', ''),
+                'type': note_data.get('type', ''),
+                'image_list': [img.get('urlDefault', img.get('url', ''))
+                               for img in note_data.get('imageList', [])],
+                'video_url': None,
+                'tags': [tag.get('name', '') for tag in note_data.get('tagList', []) if tag.get('name')],
+                'topic': note_data.get('topic', {}).get('name', '') if note_data.get('topic') else '',
+                'ip_location': note_data.get('ipLocation', ''),
+                'collected_count': note_data.get('interactInfo', {}).get('collectedCount', 0),
+                'share_count': note_data.get('interactInfo', {}).get('shareCount', 0),
+                'comment_count': note_data.get('interactInfo', {}).get('commentCount', 0),
+            }
+            print("笔记信息----")
+            print(note_content)
+
+            # 视频信息
+            if note_data.get('video'):
+                video = note_data['video']
+                if video.get('media') and video['media'].get('stream'):
+                    h264_list = video['media']['stream'].get('h264', [])
+                    if h264_list:
+                        note_content['video_url'] = h264_list[0].get('masterUrl', '')
+
+            print(f"[{note_id}] 笔记信息获取成功:")
+            print(f"  - 类型: {note_content['type']}")
+            print(f"  - 描述长度: {len(note_content['desc'])}")
+            print(f"  - 图片数: {len(note_content['image_list'])}")
+            print(f"  - 视频URL: {'有' if note_content['video_url'] else '无'}")
+            print(f"  - 标签: {note_content['tags']}")
+
+            # 更新笔记内容到数据库
+            try:
+                db = DBManager()
+                db.connect()
+                db.update_note_content(note_content)
+                db.close()
+            except Exception as e:
+                print(f"[{note_id}] 更新笔记内容到数据库失败: {e}")
+        else:
+            print(f"[{note_id}] 未在 noteDetailMap 中找到")
+    else:
+        print(f"[{note_id}] 未获取到 __INITIAL_STATE__")
 
     print(f"[{note_id}] 开始滚动加载评论（最多 {MAX_COMMENT_LIMIT} 条）...")
 
@@ -313,24 +382,24 @@ if __name__=="__main__":
     # 方式1：默认使用有头模式（headless_set = False）
     print("=== 默认有头模式 ===")
     # 单个笔记爬取
-    # test_note_id = "67b176a9000000001703b7ae"
-    # test_note_url = "https://www.xiaohongshu.com/explore/67b176a9000000001703b7ae?xsec_token=ABe92vHe7141aLyqFzjBcoL_JUC3HHIoGYF6qr0BMVu9o=&xsec_source=pc_search"
-    # comment_text_list = crawl_content_qw(set_pause=False, note_id=test_note_id, note_url=test_note_url)
+    test_note_id = "6709f2de000000002401a2a9"
+    test_note_url = "https://www.xiaohongshu.com/search_result/6709f2de000000002401a2a9?xsec_token=AB5fMSn8DRaR909wMGdRM58DbZaWQ4MUK6I4cm951pnEY=&xsec_source="
+    comment_text_list = crawl_content_qw(set_pause=False, note_id=test_note_id, note_url=test_note_url)
 
     # 方式2：切换到无头模式
-    print("\n=== 切换到无头模式 ===")
+    # print("\n=== 切换到无头模式 ===")
     # set_headless_mode(True)  # 设置为无头模式
 
     # 方式3：在无头/有头之间切换
     # toggle_headless_mode()  # 在无头/有头之间切换
 
     # 方式4：批量爬取笔记（使用当前设置的模式）
-    print("\n=== 批量爬取（无头模式） ===")
+    # print("\n=== 批量爬取（无头模式） ===")
     # 爬取所有笔记中点赞数最高的前10条
     # crawl_multiple_notes_from_db(max_concurrent=2, limit=10)
 
     # 爬取1月6号的笔记中点赞数最高的前10条
-    crawl_multiple_notes_from_db(max_concurrent=1, limit=2, date_filter='2026-03-19')
+    # crawl_multiple_notes_from_db(max_concurrent=1, limit=2, date_filter='2026-03-19')
 
     # 爬取关键词为"旅游规划app推荐"的笔记中点赞数最高的前10条
     # crawl_multiple_notes_from_db(max_concurrent=2, limit=10, keyword='旅游规划app推荐')

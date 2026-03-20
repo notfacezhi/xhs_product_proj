@@ -30,7 +30,8 @@
         commentCount: document.getElementById('commentCount'),
         statusMarquee: document.getElementById('statusMarquee'),
         statusMarqueeContent: document.getElementById('statusMarqueeContent'),
-        pageSizeSelect: document.getElementById('pageSizeSelect')
+        pageSizeSelect: document.getElementById('pageSizeSelect'),
+        radarMini: document.getElementById('radarMini')
     };
 
     function init() {
@@ -208,6 +209,7 @@
             elements.currentKeyword.textContent = `CURRENT_KEYWORD: ${currentKeyword.toUpperCase()}`;
             displayNote(0);
             loadStats();
+            updateRadarTargets(currentNotes);
             
             const crawlingCount = currentNotes.filter(n => n.is_comment_crawled === 2).length;
             const completedCount = currentNotes.filter(n => n.is_comment_crawled === 1).length;
@@ -256,25 +258,65 @@
         const note = currentNotes[index];
         currentNoteIndex = index;
 
-        const crawlingIndicator = note.is_comment_crawled === 2 
+        const crawlingIndicator = note.is_comment_crawled === 2
             ? '<div class="crawling-indicator"><div class="crawling-spinner"></div><span class="crawling-text">CRAWLING<span class="crawling-dots"></span></span></div>'
             : '';
+
+        // 解析标签
+        let tagsList = [];
+        try {
+            tagsList = note.tags ? JSON.parse(note.tags) : [];
+        } catch (e) {}
+
+        // 类型标签
+        const typeLabel = note.type === 'video' ? '[VIDEO]' : '[NORMAL]';
+        const topicLabel = note.topic ? `#${escapeHtml(note.topic)}` : '';
+        const ipLabel = note.ip_location ? `📍 ${escapeHtml(note.ip_location)}` : '';
+
+        // 标签HTML
+        const tagsHtml = tagsList.length > 0
+            ? `<div class="terminal-line">TAGS: ${tagsList.map(t => `#${escapeHtml(t)}`).join(' ')}</div>`
+            : '';
+
+        // 统计数据
+        const collectedNum = note.collected_count || 0;
+        const shareNum = note.share_count || 0;
+        const commentNum = note.comment_count || 0;
 
         elements.noteCard.innerHTML = `
             <div class="note-content">
                 <div class="note-meta">
                     <h2 class="note-title">${escapeHtml(note.title)}</h2>
                     <div class="note-author">AUTHOR: ${escapeHtml(note.author_name)}</div>
+                    <div class="note-type-bar">
+                        <span class="type-badge">${typeLabel}</span>
+                        ${topicLabel ? `<span class="topic-badge">${topicLabel}</span>` : ''}
+                        ${ipLabel ? `<span class="ip-badge">${ipLabel}</span>` : ''}
+                    </div>
                     <div class="note-stats">
                         <span>❤ LIKES: ${(note.like_count || 0).toLocaleString()}</span>
-                        <span>💬 COMMENTS: ${(note.comment_count || 0).toLocaleString()}</span>
+                        <span>⭐ COLLECT: ${collectedNum}</span>
+                        <span>🔄 SHARE: ${shareNum}</span>
+                        <span>💬 COMMENTS: ${commentNum}</span>
                         ${crawlingIndicator}
                     </div>
                 </div>
+
+                ${tagsHtml}
+
                 <div class="note-body">
+                    ${note.desc ? `
+                    <div class="terminal-line">┌─ DESCRIPTION ──────────────────────────────────────────┐</div>
+                    <div class="note-desc">${escapeHtml(note.desc.length > 10 ? note.desc.substring(0, 10) + '...' : note.desc)}</div>
+                    <div class="terminal-line">└──────────────────────────────────────────────────────────┘</div>
+                    ` : ''}
+
                     <div class="note-summary">
                         <div class="terminal-line">NOTE_ID: ${note.note_id}</div>
                         <div class="terminal-line">KEYWORD: ${note.keyword || 'N/A'}</div>
+                        ${note.note_url ? `<div class="terminal-line">
+                            <a href="${escapeHtml(note.note_url)}" target="_blank" class="note-url">🔗 OPEN_NOTE_URL</a>
+                        </div>` : ''}
                     </div>
                 </div>
                 <div class="note-timestamp">
@@ -391,6 +433,43 @@
         
         // 更新分页选择器显示
         elements.pageSizeSelect.value = commentsPerPage;
+    }
+
+    function updateRadarTargets(notes) {
+        if (!elements.radarMini) return;
+        
+        const existingTargets = elements.radarMini.querySelectorAll('.radar-target');
+        existingTargets.forEach(target => target.remove());
+        
+        if (!notes || notes.length === 0) return;
+        
+        const radarSize = 80;
+        const centerX = radarSize / 2;
+        const centerY = radarSize / 2;
+        const maxRadius = radarSize / 2 - 8;
+        
+        notes.forEach((note, index) => {
+            const target = document.createElement('div');
+            target.className = 'radar-target';
+            
+            if (note.is_comment_crawled === 2) {
+                target.classList.add('crawling');
+            } else {
+                target.classList.add('completed');
+            }
+            
+            const angle = Math.random() * Math.PI * 2;
+            const radius = Math.random() * maxRadius;
+            
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+            
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            target.style.animationDelay = (Math.random() * 2) + 's';
+            
+            elements.radarMini.appendChild(target);
+        });
     }
 
     function navigateNote(direction) {
