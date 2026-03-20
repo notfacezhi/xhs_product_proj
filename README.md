@@ -5,3 +5,7 @@ uvicorn server.main:app --host 172.21.70.90 --port 8069
 
 ## 前端直接启动就行
 
+
+
+# git pull 会卡住
+git config --global http.sslVerify false
